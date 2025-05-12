@@ -1,40 +1,45 @@
-                -- QUESTION ONE
-WITH RECURSIVE cte AS (
-SELECT 
-OrderID,
-CustomerName,
-Products,
-1 AS position,
-SUBSTRING_INDEX(Products, ',', 1) AS Product
-FROM ProductDetail
-    
-UNION ALL
-    
-SELECT 
-OrderID,
-CustomerName,
-Products,
-position + 1,
-TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(Products, ',', position + 1), ',', -1))
-FROM cte
-WHERE position < LENGTH(Products) - LENGTH(REPLACE(Products, ',', '')) + 1
-)
-SELECT OrderID, CustomerName, Product
-FROM cte
-ORDER BY OrderID, position;
+ --  Question 1
+CREATE TABLE ProductDetail (
+    OrderID INT,
+    CustomerName VARCHAR(100),
+    Products VARCHAR(100)
+);
+INSERT INTO ProductDetail(OrderID, CustomerName, Products)
+VALUES
+(101, 'John Doe', 'Laptop'),
+(101, 'John Doe', 'Mouse'),
+(102, 'Jane Smith', 'Tablet'),
+(102, 'Jane Smith', 'Keyboard'),
+(102, 'Jane Smith', 'Mouse'),
+(103, 'Emily Clark', 'Phone');
 
 
 
-            -- QUESTION TWO
-CREATE TABLE Orders AS
-SELECT DISTINCT OrderID, CustomerName
-FROM OrderDetails;
+-- Question 2
+ CREATE TABLE orders(
+OrderID INT PRIMARY KEY,
+customerName VARCHAR(100)
+);
+INSERT INTO orders (OrderID, CustomerName)
+VALUES
+(101, 'John Doe'),
+(102, 'Jane Smith'),
+(103, 'Emily Clark');
 
-CREATE TABLE OrderItems AS
-SELECT OrderID, Product, Quantity
-FROM OrderDetails;
+CREATE TABLE product(
+product_id INT primary key,
+productName varchar(100),
+quantity INT,
+order_id INT,
+foreign key(order_id) references orders(OrderID)
+);
 
-ALTER TABLE Orders ADD PRIMARY KEY (OrderID);
+insert into product(product_id,productName,quantity,order_id)
+values 
+(1,'laptop',2,101),
+(2,'Mouse',1,101),
+(3,'Tablet',3,102),
+(4,'Keyboard',2,102),
+(5,'Mouse',1,102),
+(6,'Phone',1,103);
 
-ALTER TABLE OrderItems ADD PRIMARY KEY (OrderID, Product);
-ALTER TABLE OrderItems ADD FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
